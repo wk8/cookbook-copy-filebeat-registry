@@ -1,0 +1,38 @@
+#!/bin/bash
+
+exec 2>&1
+
+log() {
+  echo "$(date) - $@"
+}
+
+REGISTRY_FROM="<%= node['copy_filebeat_registry']['from'] %>"
+REGISTRY_TO="<%= node['copy_filebeat_registry']['to'] %>"
+REGISTRY_TO_TEMP="$REGISTRY_TO~"
+
+while true; do
+  sleep <%= node['copy_filebeat_registry']['interval'] %>
+
+  if [ ! -r "$REGISTRY_FROM" ]; then
+    log "No readable file at $REGISTRY_FROM"
+    continue
+  fi
+
+  cp "$REGISTRY_FROM" "$REGISTRY_TO_TEMP"
+  if [[ "$?" != 0 ]]; then
+    log "Unable to copy the registry to $REGISTRY_TO_TEMP"
+    continue
+  fi
+
+  chmod <%= node['copy_filebeat_registry']['mode'] %> "$REGISTRY_TO_TEMP"
+  # even if not successful, we continue anyway
+  [[ "$?" == 0 ]] || log "Unable to set permissions on $REGISTRY_TO_TEMP"
+
+  chown <%= node['copy_filebeat_registry']['user'] %>:<%= node['copy_filebeat_registry']['group'] %> "$REGISTRY_TO_TEMP"
+  # same, best effort here
+  [[ "$?" == 0 ]] || log "Unable to set owner/group on $REGISTRY_TO_TEMP"
+
+  # and finally copy to the final destination
+  cp --preserve "$REGISTRY_TO_TEMP" "$REGISTRY_TO"
+  [[ "$?" == 0 ]] || log "Unable to copy from $REGISTRY_TO_TEMP to $REGISTRY_TO"
+done
