@@ -6,4 +6,4 @@ This is an extremely simple (not to say borderline dumb!) Chef cookbook that sim
 
 ## Usage
 
-Just include the `copy_filebeat_registry` recipe in your run list. The attributes are documented directly in the [attributes' file](TODO wkpo).
+Just include the `copy_filebeat_registry` recipe in your run list. The attributes are documented directly in the [attributes' file](https://github.com/wk8/cookbook-copy-filebeat-registry/blob/master/attributes/default.rb).
